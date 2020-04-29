@@ -3,6 +3,7 @@
 # @Author  : AaronJny
 # @Time    : 2020/04/26
 # @Desc    :
+import time
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -34,7 +35,10 @@ def create_new_table():
     """
     name = request.json.get('name')
     start_date_str = request.json.get('start_date')
-    start_date = datetime.fromisoformat(start_date_str[:10])
+    # 兼容python 3.6.9
+    # start_date = datetime.fromisoformat(start_date_str[:10])
+    timestamp = time.mktime(time.strptime(start_date_str[:10], '%Y-%m-%d'))
+    start_date = datetime.fromtimestamp(timestamp)
     num_per_day = int(request.json.get('num_per_day', 2))
     total_num = int(request.json.get('total_num', 50))
     et = EbbinghausTable(name=name, start_date=start_date, num_per_day=num_per_day, total_num=total_num)
