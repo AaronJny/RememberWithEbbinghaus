@@ -11,12 +11,18 @@
         <div slot="header" class="clearfix">
             <el-row>
                 <el-col :span="8" :offset="6">
-                    <h1>[[title]]</h1>
+                    <h1>[[title]]
+                        <el-link :underline="false" href="https://github.com/AaronJny/RememberWithEbbinghaus"
+                                 target="_blank" type="warning">
+                            <i class="el-icon-question el-icon--right"></i>
+                        </el-link>
+                    </h1>
                 </el-col>
                 <el-col :span="4">
                     <el-button type="primary" style="margin-top: 25px;" @click="dialogFormVisible = true">创建新表格
                     </el-button>
                     <el-button type="primary" @click="getAllTables">返回首页</el-button>
+
                 </el-col>
             </el-row>
         </div>
