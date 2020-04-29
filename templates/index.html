@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <el-card class="box-card">
+        <div slot="header" class="clearfix">
+            <el-row>
+                <el-col :span="8" :offset="6">
+                    <h1>[[title]]</h1>
+                </el-col>
+                <el-col :span="4">
+                    <el-button type="primary" style="margin-top: 25px;" @click="dialogFormVisible = true">创建新表格
+                    </el-button>
+                    <el-button type="primary" @click="getAllTables">返回首页</el-button>
+                </el-col>
+            </el-row>
+        </div>
+
+        <!-- Form -->
+        <el-dialog title="创建新的记忆表格" :visible.sync="dialogFormVisible" width="30%">
+            <el-form :model="form" :rules="rules">
+                <el-form-item label="表格名称" :label-width="formLabelWidth" prop="name">
+                    <el-input type="text" v-model="form.name" maxlength="30" show-word-limit></el-input>
+                </el-form-item>
+                <el-form-item label="开始时间" :label-width="formLabelWidth" prop="start_date">
+                    <el-date-picker
+                            v-model="form.start_date"
+                            type="date"
+                            placeholder="选择日期">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="每天记忆的list数量" :label-width="formLabelWidth" prop="num_per_day">
+                    <el-input-number v-model="form.num_per_day" :min="1" :max="12" label="描述文字"></el-input-number>
+                </el-form-item>
+                <el-form-item label="全部list数量" :label-width="formLabelWidth" prop="total_num">
+                    <el-input-number v-model="form.total_num" :min="1" :max="2000" label="描述文字"></el-input-number>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="createNewTable">确 定</el-button>
+            </div>
+        </el-dialog>
+        <div v-if="showTableList">
+            <div v-if="tables.length===0">
+                <h1 style="text-align: center">暂无记忆表格，先去创建一个吧！</h1>
+            </div>
+            <div v-else>
+                <el-table
+                        :data="tables"
+                        stripe
+                        style="width: 100%">
+                    <el-table-column type="index" width="50">
+                    </el-table-column>
+                    <el-table-column
+                            prop="name"
+                            label="计划表名称">
+                    </el-table-column>
+                    <el-table-column
+                            prop="start_date"
+                            label="开始日期">
+                    </el-table-column>
+                    <el-table-column
+                            prop="end_date"
+                            label="结束日期">
+                    </el-table-column>
+                    <el-table-column
+                            prop="num_per_day"
+                            label="每日list数量">
+                    </el-table-column>
+                    <el-table-column
+                            prop="total_num"
+                            label="list总量">
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button type="primary" @click="showTableDetail(scope.row.id,scope.row.name)">详情
+                            </el-button>
+                            <el-button type="danger" @click="deleteTable(scope.row.id)">移除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+
+        </div>
+        <div v-else>
+            <el-table
+                    :data="tableData"
+                    :row-class-name="tableRowClassName"
+                    style="width: 100%">
+                <el-table-column
+                        type="index">
+                </el-table-column>
+                <el-table-column
+                        prop="date"
+                        label="日期">
+                </el-table-column>
+                <el-table-column label="今日学习任务">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.learn">
+                            <el-tag type="success" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="30分钟">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.min30">
+                            <el-tag type="success" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="12小时">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.hour12">
+                            <el-tag type="success" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="1天">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.day1">
+                            <el-tag type="info" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="2天">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.day2">
+                            <el-tag type="danger" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="4天">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.day4">
+                            <el-tag type="warning" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="7天">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.day7">
+                            <el-tag type="info" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="15天">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.day15">
+                            <el-tag type="danger" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="30天">
+                    <template slot-scope="scope">
+                        <span style="margin: 2px;" v-for="item in scope.row.day30">
+                            <el-tag type="warning" effect="dark">
+                            [[ item ]]
+                            </el-tag>
+                        </span>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+    </el-card>
+
+</div>
+</body>
+
+<style>
+    .el-table .danger-row {
+        background: rgb(253, 226, 226);
+    }
+
+    .el-table .warning-row {
+        background: rgb(250, 236, 216);
+    }
+
+    .el-table .success-row {
+        background: #f0f9eb;
+    }
+</style>
+
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        data() {
+            return {
+                tableData: [],
+                showTableList: true,
+                tables: [],
+                dialogFormVisible: false,
+                titleOld: '使用艾宾浩斯遗忘曲线辅助记忆',
+                title: '使用艾宾浩斯遗忘曲线辅助记忆',
+                form: {
+                    name: '',
+                    start_date: '',
+                    num_per_day: 2,
+                    total_num: 50
+                },
+                formLabelWidth: '150px',
+                rules: {
+                    name: [
+                        {required: true, message: '请输入计划表名称', trigger: 'blur'},
+                        {min: 1, max: 30, message: '长度在 1 到 30 个字符', trigger: 'blur'}
+                    ],
+                    start_date: [
+                        {required: true, message: '请选择计划开始日期', trigger: 'blur'},
+                    ],
+                    num_per_day: [
+                        {required: true, message: '请输入每天记忆的list数量', trigger: 'blur'},
+                    ],
+                    total_num: [
+                        {required: true, message: '请输入待记忆的全部list数量', trigger: 'blur'},
+                    ]
+
+                }
+            };
+        },
+        methods: {
+            createNewTable() {
+                this.dialogFormVisible = false;
+                const url = 'http://localhost:5555/api/tables/create/';
+                axios.post(url, this.form)
+                    .then((res) => {
+                        this.$notify({
+                            title: '成功',
+                            message: '添加成功！',
+                            type: 'success',
+                            duration: 1000
+                        });
+                        this.showTableList = true;
+                        this.getAllTables();
+                        this.form.name = '';
+                        this.form.start_date = '';
+                    })
+            },
+            getAllTables() {
+                const url = 'http://localhost:5555/api/tables/';
+                this.title = this.titleOld;
+                axios.get(url)
+                    .then((res) => {
+                        this.$notify({
+                            title: '成功',
+                            message: '加载成功！',
+                            type: 'success',
+                            duration: 1000
+                        });
+                        this.tables = res.data.tables;
+                        this.showTableList = true;
+                    })
+                    .catch((error) => {
+                        this.$notify({
+                            title: '失败',
+                            message: '请求出错！',
+                            type: 'error',
+                            duration: 1000
+                        });
+                    })
+            },
+            showTableDetail(table_id, table_name) {
+                const url = 'http://localhost:5555/api/table/' + table_id;
+                axios.get(url)
+                    .then((res) => {
+                        this.tableData = res.data.table_data;
+                        this.title = table_name;
+                        this.$notify({
+                            title: '成功',
+                            message: '加载成功！',
+                            type: 'success',
+                            duration: 1000
+                        });
+                        this.showTableList = false;
+                    })
+                    .catch((error) => {
+                        this.$notify({
+                            title: '失败',
+                            message: '请求出错！',
+                            type: 'error',
+                            duration: 1000
+                        });
+                    })
+            },
+            deleteTable(table_id) {
+                const url = 'http://localhost:5555/api/table/' + table_id + '/delete/';
+                axios.get(url)
+                    .then((res) => {
+                        this.tableData = res.data.table_data;
+                        this.$notify({
+                            title: '成功',
+                            message: '删除成功！',
+                            type: 'success',
+                            duration: 1000
+                        });
+                        this.getAllTables();
+                    })
+                    .catch((error) => {
+                        this.$notify({
+                            title: '失败',
+                            message: '请求出错！',
+                            type: 'error',
+                            duration: 1000
+                        });
+                    })
+            },
+            tableRowClassName({row, rowIndex}) {
+                let my_date = new Date().toLocaleDateString().split('/');
+                if (my_date[1].length === 1) {
+                    my_date[1] = '0' + my_date[1];
+                }
+                if (my_date[2].length === 1) {
+                    my_date[2] = '0' + my_date[2];
+                }
+                let current_date_str = my_date.join('-');
+                console.log(row.date, current_date_str, row.date < current_date_str);
+                if (row.date < current_date_str) {
+                    return 'success-row';
+                } else if (row.date === current_date_str) {
+                    return 'danger-row';
+                } else {
+                    return '';
+                }
+            }
+        },
+        created() {
+            this.getAllTables();
+        }
+    })
+</script>
+</html>
