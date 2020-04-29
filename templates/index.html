@@ -247,7 +247,7 @@
         methods: {
             createNewTable() {
                 this.dialogFormVisible = false;
-                const url = 'http://localhost:5555/api/tables/create/';
+                const url = '/api/tables/create/';
                 axios.post(url, this.form)
                     .then((res) => {
                         this.$notify({
@@ -263,7 +263,7 @@
                     })
             },
             getAllTables() {
-                const url = 'http://localhost:5555/api/tables/';
+                const url = '/api/tables/';
                 this.title = this.titleOld;
                 axios.get(url)
                     .then((res) => {
@@ -286,7 +286,7 @@
                     })
             },
             showTableDetail(table_id, table_name) {
-                const url = 'http://localhost:5555/api/table/' + table_id;
+                const url = '/api/table/' + table_id;
                 axios.get(url)
                     .then((res) => {
                         this.tableData = res.data.table_data;
@@ -309,7 +309,7 @@
                     })
             },
             deleteTable(table_id) {
-                const url = 'http://localhost:5555/api/table/' + table_id + '/delete/';
+                const url = '/api/table/' + table_id + '/delete/';
                 axios.get(url)
                     .then((res) => {
                         this.tableData = res.data.table_data;
