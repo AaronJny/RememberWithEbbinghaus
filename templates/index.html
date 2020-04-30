@@ -316,25 +316,33 @@
             },
             deleteTable(table_id) {
                 const url = '/api/table/' + table_id + '/delete/';
-                axios.get(url)
-                    .then((res) => {
-                        this.tableData = res.data.table_data;
-                        this.$notify({
-                            title: '成功',
-                            message: '删除成功！',
-                            type: 'success',
-                            duration: 1000
-                        });
-                        this.getAllTables();
+                this.$confirm('确认删除吗?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        axios.get(url)
+                            .then((res) => {
+                                this.tableData = res.data.table_data;
+                                this.$notify({
+                                    title: '成功',
+                                    message: '删除成功！',
+                                    type: 'success',
+                                    duration: 1000
+                                });
+                                this.getAllTables();
+                            })
+                            .catch((error) => {
+                                this.$notify({
+                                    title: '失败',
+                                    message: '请求出错！',
+                                    type: 'error',
+                                    duration: 1000
+                                });
+                            })
                     })
-                    .catch((error) => {
-                        this.$notify({
-                            title: '失败',
-                            message: '请求出错！',
-                            type: 'error',
-                            duration: 1000
-                        });
-                    })
+
             },
             tableRowClassName({row, rowIndex}) {
                 let my_date = new Date().toLocaleDateString().split('/');
